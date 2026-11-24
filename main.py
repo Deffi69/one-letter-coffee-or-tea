@@ -24,9 +24,15 @@ def main() -> None:
     assert len(LETTER) == 1 and LETTER in "AB", "entry must be one letter, A or B"
     out_dir = os.environ.get("MAKEFUN_OUTPUT_DIR", "/output")
     os.makedirs(out_dir, exist_ok=True)
-    # Exactly one byte, no trailing newline: the gate is 1 to 1 characters.
-    with open(os.path.join(out_dir, "entry.txt"), "w", encoding="utf-8") as fh:
-        fh.write(LETTER)
+    # Write the letter as raw bytes so no encoding or newline can sneak in:
+    # the gate is exactly 1 byte, no trailing newline.
+    path = os.path.join(out_dir, "entry.txt")
+    with open(path, "wb") as fh:
+        fh.write(LETTER.encode("ascii"))
+    # Read it back and prove the file is exactly the one byte "A".
+    with open(path, "rb") as fh:
+        written = fh.read()
+    assert written == b"A" and len(written) == 1, "entry.txt must be exactly 1 byte: A"
 
 
 if __name__ == "__main__":
